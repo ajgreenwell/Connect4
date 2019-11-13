@@ -11,7 +11,7 @@ const gameStates = {
     FINISHED: "finished"
 };
 
-generateBoard = function(width, height) {
+function generateBoard(width, height) {
     let board = [];
     for (let i = 0; i < width; i++) {
         const col = []
@@ -31,6 +31,7 @@ const GameSchema = new mongoose.Schema({
     board:      { type: [[String]], default: generateBoard(boardWidth,  boardHeight) }
 });
 
+// Contains methods that will be useful for manipulating GameModel instances
 class GameModelClass {
 
     // determines if someone as won the game
@@ -77,9 +78,6 @@ class GameModelClass {
     getState() {
         return this.state;
     }
-    getGameId() {
-        return this._id;
-    }
     getPlayer1Id() {
         return this.player1Id;
     }
@@ -87,19 +85,7 @@ class GameModelClass {
         return this.player2Id;
     }
     getPlayerIds() {
-        return {
-            player1Id: this.player1Id,
-            player2Id: this.player2Id
-        };
-    }
-    getWinnerId() {
-        return this.winnerId;
-    }
-    getNextToMove() {
-        return this.nextToMove;
-    }
-    getBoard() {
-        return this.board;
+        return [this.player1Id, this.player2Id];
     }
     setState(state) {
         this.state = state;
@@ -113,7 +99,9 @@ class GameModelClass {
         this.setState(gameStates.FINISHED);
     }
 
-    // returns null if: colNumber is invalid, game is not active, column is full, or it is not the provided playerId's turn
+    // returns null if colNumber is invalid, game is not active, column is full, 
+    // or it's not the provided playerId's turn
+    //
     // returns this game instance if the move was made successfully 
     makeMove(playerId, colNumber) {
         if (colNumber < 1 || boardWidth < colNumber ||
@@ -129,7 +117,8 @@ class GameModelClass {
         return this;
     }
 
-    // returns null if the game is not active
+    // returns null if the game is not active or if it's not the provided playerId's turn
+    //
     // returns this game instance if the forfeit was processed successfully
     forfeit(playerId) {
         if (this.state != gameStates.ACTIVE || this.nextToMove != playerId)
